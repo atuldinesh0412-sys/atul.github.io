@@ -1,0 +1,1097 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Atul Dinesh — Visual Designer</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0b0b0f;
+      --surface: #13131a;
+      --surface2: #1c1c28;
+      --accent: #f0c060;
+      --accent2: #e06aff;
+      --text: #e8e4dc;
+      --muted: #7a7890;
+      --border: rgba(240,192,96,0.15);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    /* Custom cursor */
+    .cursor {
+      position: fixed;
+      width: 12px; height: 12px;
+      background: var(--accent);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+      transition: transform 0.1s, width 0.3s, height 0.3s, background 0.3s;
+      mix-blend-mode: difference;
+    }
+    .cursor-ring {
+      position: fixed;
+      width: 40px; height: 40px;
+      border: 1px solid var(--accent);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9998;
+      transform: translate(-50%, -50%);
+      transition: transform 0.15s ease-out, width 0.3s, height 0.3s, opacity 0.3s;
+      opacity: 0.5;
+    }
+
+    /* Noise texture overlay */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 1000;
+      opacity: 0.4;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.5rem 3rem;
+      background: linear-gradient(to bottom, rgba(11,11,15,0.95), transparent);
+      backdrop-filter: blur(8px);
+    }
+    .nav-logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.6rem;
+      letter-spacing: 0.12em;
+      color: var(--accent);
+      text-decoration: none;
+    }
+    .nav-links { display: flex; gap: 2.5rem; list-style: none; }
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.8rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      transition: color 0.3s;
+    }
+    .nav-links a:hover { color: var(--accent); }
+
+    /* ── HERO ── */
+    #hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 0 3rem 5rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 70% 60% at 75% 40%, rgba(224,106,255,0.12) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 50% at 20% 70%, rgba(240,192,96,0.08) 0%, transparent 55%),
+        var(--bg);
+    }
+    .hero-grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(240,192,96,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(240,192,96,0.04) 1px, transparent 1px);
+      background-size: 80px 80px;
+      mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+    }
+    .hero-eyebrow {
+      font-size: 0.75rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 1.2rem;
+      opacity: 0;
+      animation: fadeUp 0.8s 0.2s forwards;
+    }
+    .hero-name {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(5rem, 14vw, 14rem);
+      line-height: 0.88;
+      letter-spacing: -0.01em;
+      color: var(--text);
+      position: relative;
+      z-index: 1;
+      opacity: 0;
+      animation: fadeUp 1s 0.4s forwards;
+    }
+    .hero-name span { color: var(--accent); }
+    .hero-tagline {
+      font-family: 'DM Serif Display', serif;
+      font-style: italic;
+      font-size: clamp(1rem, 2.5vw, 1.6rem);
+      color: var(--muted);
+      margin-top: 1.5rem;
+      max-width: 500px;
+      opacity: 0;
+      animation: fadeUp 0.8s 0.6s forwards;
+    }
+    .hero-cta {
+      margin-top: 3rem;
+      display: flex;
+      gap: 1.2rem;
+      align-items: center;
+      opacity: 0;
+      animation: fadeUp 0.8s 0.8s forwards;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: #0b0b0f;
+      padding: 0.85rem 2.2rem;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 500;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      text-decoration: none;
+      display: inline-block;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(240,192,96,0.35); }
+    .btn-ghost {
+      color: var(--text);
+      font-size: 0.8rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      opacity: 0.6;
+      transition: opacity 0.3s;
+    }
+    .btn-ghost:hover { opacity: 1; }
+    .btn-ghost svg { transition: transform 0.3s; }
+    .btn-ghost:hover svg { transform: translateX(4px); }
+
+    .hero-scroll {
+      position: absolute;
+      right: 3rem;
+      bottom: 4rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.6rem;
+      opacity: 0;
+      animation: fadeIn 1s 1.2s forwards;
+    }
+    .hero-scroll span {
+      font-size: 0.65rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--muted);
+      writing-mode: vertical-rl;
+    }
+    .scroll-line {
+      width: 1px;
+      height: 60px;
+      background: linear-gradient(to bottom, var(--accent), transparent);
+      animation: scrollPulse 2s ease-in-out infinite;
+    }
+
+    /* ── MARQUEE ── */
+    .marquee-section {
+      padding: 1.5rem 0;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      overflow: hidden;
+      position: relative;
+    }
+    .marquee-track {
+      display: flex;
+      gap: 2rem;
+      white-space: nowrap;
+      animation: marquee 25s linear infinite;
+      width: max-content;
+    }
+    .marquee-item {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1rem;
+      letter-spacing: 0.2em;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+    }
+    .marquee-dot {
+      width: 6px; height: 6px;
+      background: var(--accent);
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* ── ABOUT ── */
+    #about {
+      padding: 8rem 3rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6rem;
+      max-width: 1400px;
+      margin: 0 auto;
+      align-items: center;
+    }
+    .about-label {
+      font-size: 0.7rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 1.5rem;
+    }
+    .about-heading {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      line-height: 1.2;
+      margin-bottom: 1.5rem;
+    }
+    .about-heading em { color: var(--accent2); font-style: italic; }
+    .about-body {
+      color: var(--muted);
+      font-size: 1rem;
+      line-height: 1.9;
+      margin-bottom: 2.5rem;
+    }
+    .about-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+      border-top: 1px solid var(--border);
+      padding-top: 2rem;
+    }
+    .stat-number {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2.8rem;
+      color: var(--accent);
+      line-height: 1;
+    }
+    .stat-label {
+      font-size: 0.75rem;
+      color: var(--muted);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-top: 0.3rem;
+    }
+    .about-visual {
+      position: relative;
+    }
+    .about-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 3rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .about-card::before {
+      content: '';
+      position: absolute;
+      top: -1px; left: 2rem;
+      width: 60px; height: 2px;
+      background: var(--accent);
+    }
+    .about-card-glow {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at top right, rgba(224,106,255,0.07), transparent 60%);
+    }
+    .skill-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.7rem;
+      margin-top: 1.5rem;
+    }
+    .chip {
+      padding: 0.4rem 1rem;
+      border: 1px solid var(--border);
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      text-transform: uppercase;
+      transition: border-color 0.3s, color 0.3s;
+    }
+    .chip:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* ── SERVICES ── */
+    #services {
+      padding: 8rem 3rem;
+      background: var(--surface);
+      position: relative;
+      overflow: hidden;
+    }
+    #services::before {
+      content: '';
+      position: absolute;
+      right: -20%;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(240,192,96,0.05), transparent 70%);
+      pointer-events: none;
+    }
+    .section-header {
+      text-align: center;
+      max-width: 600px;
+      margin: 0 auto 5rem;
+    }
+    .section-label {
+      font-size: 0.7rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 1rem;
+    }
+    .section-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(2.5rem, 5vw, 4rem);
+      letter-spacing: 0.05em;
+      line-height: 1;
+    }
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5px;
+      max-width: 1200px;
+      margin: 0 auto;
+      background: var(--border);
+    }
+    .service-card {
+      background: var(--surface);
+      padding: 3rem 2.5rem;
+      position: relative;
+      overflow: hidden;
+      transition: background 0.4s;
+      cursor: default;
+    }
+    .service-card:hover { background: var(--surface2); }
+    .service-number {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 5rem;
+      color: var(--border);
+      line-height: 1;
+      margin-bottom: 1.5rem;
+      transition: color 0.4s;
+    }
+    .service-card:hover .service-number { color: rgba(240,192,96,0.12); }
+    .service-icon {
+      width: 48px; height: 48px;
+      margin-bottom: 1.5rem;
+      color: var(--accent);
+    }
+    .service-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.6rem;
+      margin-bottom: 1rem;
+    }
+    .service-desc {
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.8;
+    }
+    .service-line {
+      position: absolute;
+      bottom: 0; left: 0;
+      width: 0; height: 2px;
+      background: var(--accent);
+      transition: width 0.5s ease;
+    }
+    .service-card:hover .service-line { width: 100%; }
+
+    /* ── WORK / PORTFOLIO ── */
+    #work {
+      padding: 8rem 3rem;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    .work-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 4rem;
+    }
+    .work-grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      grid-template-rows: auto;
+      gap: 1.5rem;
+    }
+    .work-item {
+      position: relative;
+      overflow: hidden;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      group: true;
+    }
+    .work-item:nth-child(1) { grid-column: 1/8; grid-row: 1; aspect-ratio: 16/10; }
+    .work-item:nth-child(2) { grid-column: 8/13; grid-row: 1; aspect-ratio: 9/10; }
+    .work-item:nth-child(3) { grid-column: 1/5; grid-row: 2; aspect-ratio: 4/3; }
+    .work-item:nth-child(4) { grid-column: 5/9; grid-row: 2; aspect-ratio: 4/3; }
+    .work-item:nth-child(5) { grid-column: 9/13; grid-row: 2; aspect-ratio: 4/3; }
+    .work-bg {
+      position: absolute;
+      inset: 0;
+      transition: transform 0.6s ease;
+    }
+    .work-item:hover .work-bg { transform: scale(1.05); }
+    .work-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(11,11,15,0.95) 0%, rgba(11,11,15,0.3) 60%, transparent 100%);
+      opacity: 0;
+      transition: opacity 0.4s;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 1.8rem;
+    }
+    .work-item:hover .work-overlay { opacity: 1; }
+    .work-tag {
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.4rem;
+    }
+    .work-name {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.3rem;
+    }
+
+    /* Placeholder artworks using CSS */
+    .w1 { background: linear-gradient(135deg, #1a0a2e 0%, #16213e 30%, #0f3460 60%, #533483 100%); }
+    .w1::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 30% 60%, rgba(224,106,255,0.4) 0%, transparent 40%),
+        radial-gradient(circle at 75% 30%, rgba(83,52,131,0.6) 0%, transparent 35%);
+    }
+    .w2 { background: linear-gradient(to bottom right, #0d1117, #161b22); }
+    .w2::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 50% 40%, rgba(240,192,96,0.3) 0%, transparent 50%),
+        linear-gradient(45deg, transparent 45%, rgba(240,192,96,0.05) 50%, transparent 55%);
+    }
+    .w3 { background: linear-gradient(135deg, #0a1628, #0e2d47, #0a3d62); }
+    .w3::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 40% 50%, rgba(0,168,255,0.25) 0%, transparent 60%);
+    }
+    .w4 { background: linear-gradient(to bottom, #1a0a2e, #4a0a2e); }
+    .w4::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 60% 40%, rgba(255,60,120,0.3) 0%, transparent 50%),
+        radial-gradient(circle at 20% 70%, rgba(224,106,255,0.2) 0%, transparent 40%);
+    }
+    .w5 { background: linear-gradient(135deg, #0b2818, #083d1f, #145a32); }
+    .w5::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 50% 50%, rgba(57,255,20,0.15) 0%, transparent 60%);
+    }
+
+    .placeholder-art {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .placeholder-art svg { opacity: 0.15; }
+
+    /* ── PROCESS ── */
+    #process {
+      padding: 8rem 3rem;
+      background: var(--surface);
+    }
+    .process-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .process-steps {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2rem;
+      margin-top: 5rem;
+      position: relative;
+    }
+    .process-steps::before {
+      content: '';
+      position: absolute;
+      top: 2.5rem;
+      left: 12%;
+      right: 12%;
+      height: 1px;
+      background: linear-gradient(to right, transparent, var(--border), var(--accent), var(--border), transparent);
+    }
+    .process-step { text-align: center; padding: 1rem; }
+    .step-dot {
+      width: 5rem; height: 5rem;
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.5rem;
+      background: var(--bg);
+      position: relative;
+      transition: border-color 0.3s;
+    }
+    .process-step:hover .step-dot { border-color: var(--accent); }
+    .step-num {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.5rem;
+      color: var(--accent);
+    }
+    .step-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.1rem;
+      margin-bottom: 0.7rem;
+    }
+    .step-desc { font-size: 0.85rem; color: var(--muted); line-height: 1.7; }
+
+    /* ── CONTACT ── */
+    #contact {
+      padding: 8rem 3rem;
+      max-width: 1400px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6rem;
+      align-items: center;
+    }
+    .contact-big {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(3rem, 7vw, 6rem);
+      letter-spacing: 0.03em;
+      line-height: 1;
+      margin-bottom: 1.5rem;
+    }
+    .contact-big span { color: var(--accent); }
+    .contact-sub { color: var(--muted); line-height: 1.8; max-width: 400px; }
+    .contact-links { margin-top: 2.5rem; display: flex; flex-direction: column; gap: 1rem; }
+    .contact-link {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      color: var(--text);
+      text-decoration: none;
+      font-size: 0.9rem;
+      padding: 1rem 1.2rem;
+      border: 1px solid var(--border);
+      transition: border-color 0.3s, background 0.3s;
+    }
+    .contact-link:hover { border-color: var(--accent); background: rgba(240,192,96,0.04); }
+    .contact-link svg { color: var(--accent); flex-shrink: 0; }
+    .contact-form { display: flex; flex-direction: column; gap: 1.2rem; }
+    .form-group { position: relative; }
+    .form-group label {
+      display: block;
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.5rem;
+    }
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.9rem 1.1rem;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      outline: none;
+      resize: none;
+      transition: border-color 0.3s;
+    }
+    .form-group input:focus,
+    .form-group textarea:focus { border-color: var(--accent); }
+    .form-group textarea { height: 120px; }
+    .btn-submit {
+      background: transparent;
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      padding: 0.9rem 2.5rem;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 500;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.3s, color 0.3s, transform 0.3s;
+      align-self: flex-start;
+    }
+    .btn-submit:hover { background: var(--accent); color: #0b0b0f; transform: translateY(-2px); }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 2.5rem 3rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .footer-logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.3rem;
+      letter-spacing: 0.12em;
+      color: var(--accent);
+    }
+    .footer-copy { font-size: 0.75rem; color: var(--muted); }
+    .footer-socials { display: flex; gap: 1.2rem; }
+    .footer-socials a {
+      color: var(--muted);
+      transition: color 0.3s;
+      text-decoration: none;
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+    .footer-socials a:hover { color: var(--accent); }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    @keyframes marquee {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+    @keyframes scrollPulse {
+      0%, 100% { opacity: 0.4; transform: scaleY(1); }
+      50% { opacity: 1; transform: scaleY(1.1); }
+    }
+
+    /* Reveal on scroll */
+    .reveal {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 0.8s, transform 0.8s;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .reveal-delay-1 { transition-delay: 0.1s; }
+    .reveal-delay-2 { transition-delay: 0.2s; }
+    .reveal-delay-3 { transition-delay: 0.3s; }
+
+    @media (max-width: 900px) {
+      nav { padding: 1.2rem 1.5rem; }
+      .nav-links { display: none; }
+      #hero { padding: 0 1.5rem 4rem; }
+      #about { grid-template-columns: 1fr; gap: 3rem; padding: 5rem 1.5rem; }
+      .services-grid { grid-template-columns: 1fr; }
+      #services { padding: 5rem 1.5rem; }
+      .work-grid { display: flex; flex-direction: column; }
+      .work-item { aspect-ratio: 16/9 !important; }
+      #contact { grid-template-columns: 1fr; gap: 3rem; padding: 5rem 1.5rem; }
+      .process-steps { grid-template-columns: 1fr 1fr; }
+      .process-steps::before { display: none; }
+      footer { flex-direction: column; gap: 1rem; text-align: center; padding: 2rem 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="cursor" id="cursor"></div>
+  <div class="cursor-ring" id="cursorRing"></div>
+
+  <!-- NAV -->
+  <nav>
+    <a href="#" class="nav-logo">ATUL DINESH</a>
+    <ul class="nav-links">
+      <li><a href="#about">About</a></li>
+      <li><a href="#services">Services</a></li>
+      <li><a href="#work">Work</a></li>
+      <li><a href="#process">Process</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <section id="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-grid"></div>
+    <div style="position:relative;z-index:2;">
+      <p class="hero-eyebrow">Visual Designer &amp; Motion Artist</p>
+      <h1 class="hero-name">ATUL<br><span>DINESH</span></h1>
+      <p class="hero-tagline">Crafting worlds through pixels, polygons, and pure imagination.</p>
+      <div class="hero-cta">
+        <a href="#work" class="btn-primary">View My Work</a>
+        <a href="#contact" class="btn-ghost">
+          Let's Collaborate
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+    <div class="hero-scroll">
+      <div class="scroll-line"></div>
+      <span>Scroll</span>
+    </div>
+  </section>
+
+  <!-- MARQUEE -->
+  <div class="marquee-section">
+    <div class="marquee-track" id="marqueeTrack">
+      <span class="marquee-item"><span class="marquee-dot"></span>3D DESIGN</span>
+      <span class="marquee-item"><span class="marquee-dot"></span>2D ANIMATION</span>
+      <span class="marquee-item"><span class="marquee-dot"></span>GRAPHIC DESIGN</span>
+      <span class="marquee-item"><span class="marquee-dot"></span>BRAND IDENTITY</span>
+      <span class="marquee-item"><span class="marquee-dot"></span>MOTION GRAPHICS</span>
+      <span class="marquee-item"><span class="marquee-dot"></span>VISUAL STORYTELLING</span>
+      <span class="marquee-item"><span class="marquee-dot"></span>3D DESIGN</span>
+      <span class="marquee-item"><span class="marquee-dot"></span>2D ANIMATION</span>
+      <span class="marquee-item"><span class="marquee-dot"></span>GRAPHIC DESIGN</span>
+      <span class="marquee-item"><span class="marquee-dot"></span>BRAND IDENTITY</span>
+      <span class="marquee-item"><span class="marquee-dot"></span>MOTION GRAPHICS</span>
+      <span class="marquee-item"><span class="marquee-dot"></span>VISUAL STORYTELLING</span>
+    </div>
+  </div>
+
+  <!-- ABOUT -->
+  <section id="about">
+    <div class="reveal">
+      <p class="about-label">Who I Am</p>
+      <h2 class="about-heading">Designing futures, one <em>frame</em> at a time.</h2>
+      <p class="about-body">I'm Atul Dinesh — a multidisciplinary visual designer who lives at the intersection of art, technology, and storytelling. Whether sculpting photorealistic 3D environments, breathing life into animated characters, or building bold brand identities, I bring ideas from concept to completion with precision and passion.</p>
+      <div class="about-stats">
+        <div>
+          <div class="stat-number">50+</div>
+          <div class="stat-label">Projects Done</div>
+        </div>
+        <div>
+          <div class="stat-number">3+</div>
+          <div class="stat-label">Years Experience</div>
+        </div>
+        <div>
+          <div class="stat-number">20+</div>
+          <div class="stat-label">Happy Clients</div>
+        </div>
+      </div>
+    </div>
+    <div class="about-visual reveal reveal-delay-2">
+      <div class="about-card">
+        <div class="about-card-glow"></div>
+        <p class="about-label">My Toolkit</p>
+        <p style="font-family:'DM Serif Display',serif;font-size:1.2rem;margin-bottom:1rem;">Software &amp; Skills</p>
+        <p style="color:var(--muted);font-size:0.85rem;line-height:1.8;">From ideation to final render — I use industry-standard tools to deliver excellence across every medium.</p>
+        <div class="skill-chips">
+          <span class="chip">Blender</span>
+          <span class="chip">Cinema 4D</span>
+          <span class="chip">After Effects</span>
+          <span class="chip">Adobe Animate</span>
+          <span class="chip">Photoshop</span>
+          <span class="chip">Illustrator</span>
+          <span class="chip">Figma</span>
+          <span class="chip">Premiere Pro</span>
+          <span class="chip">ZBrush</span>
+          <span class="chip">Substance Painter</span>
+          <span class="chip">DaVinci Resolve</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SERVICES -->
+  <section id="services">
+    <div class="section-header reveal">
+      <p class="section-label">What I Do</p>
+      <h2 class="section-title">SERVICES</h2>
+    </div>
+    <div class="services-grid">
+      <!-- 3D Design -->
+      <div class="service-card reveal">
+        <div class="service-number">01</div>
+        <svg class="service-icon" fill="none" stroke="currentColor" stroke-width="1.2" viewBox="0 0 48 48">
+          <path d="M24 6l16 9v18L24 42 8 33V15L24 6z" stroke-linejoin="round"/>
+          <path d="M24 6v18m0 18V24m0 0L8 15m16 9l16-9" stroke-linejoin="round"/>
+        </svg>
+        <h3 class="service-title">3D Design </h3>
+        <p class="service-desc">Photorealistic environments, product visualisations, character sculpts, and architectural renders that make your vision tangible. From modelling to texturing and final lighting.</p>
+        <div class="service-line"></div>
+      </div>
+      <!-- 2D Animation -->
+      <div class="service-card reveal reveal-delay-1">
+        <div class="service-number">02</div>
+        <svg class="service-icon" fill="none" stroke="currentColor" stroke-width="1.2" viewBox="0 0 48 48">
+          <circle cx="24" cy="24" r="16"/>
+          <path d="M20 18l12 6-12 6V18z" stroke-linejoin="round"/>
+          <path d="M8 24h4M36 24h4M24 8v4M24 36v4"/>
+        </svg>
+        <h3 class="service-title">2D Animation</h3>
+        <p class="service-desc">Expressive character animation, explainer videos, motion graphics, and frame-by-frame storytelling. I blend classical animation principles with modern digital fluency.</p>
+        <div class="service-line"></div>
+      </div>
+      <!-- Graphic Design -->
+      <div class="service-card reveal reveal-delay-2">
+        <div class="service-number">03</div>
+        <svg class="service-icon" fill="none" stroke="currentColor" stroke-width="1.2" viewBox="0 0 48 48">
+          <rect x="6" y="6" width="36" height="36" rx="2"/>
+          <path d="M6 18h36M18 18v24"/>
+          <circle cx="34" cy="34" r="4"/>
+          <path d="M28 30l4 4-4 4"/>
+        </svg>
+        <h3 class="service-title">Graphic Design</h3>
+        <p class="service-desc">Brand identities, poster design, packaging, editorial layouts, and social media visuals crafted with intent. Every pixel placed with purpose and craft.</p>
+        <div class="service-line"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WORK -->
+  <section id="work">
+    <div class="work-header">
+      <div class="reveal">
+        <p class="section-label">Portfolio</p>
+        <h2 class="section-title" style="font-family:'Bebas Neue',sans-serif;font-size:clamp(2.5rem,5vw,4rem);letter-spacing:.05em;">SELECTED WORK</h2>
+      </div>
+      <a href="#contact" class="btn-ghost reveal" style="opacity:0.6;">
+        Commission a project
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+          <path d="M5 12h14M12 5l7 7-7 7"/>
+        </svg>
+      </a>
+    </div>
+    <div class="work-grid">
+      <div class="work-item reveal">
+        <div class="work-bg w1"></div>
+        <div class="placeholder-art">
+          <svg width="80" height="80" viewBox="0 0 80 80" fill="none" stroke="white" stroke-width="0.8">
+            <path d="M40 10l24 13.5v27L40 64 16 50.5v-27L40 10z"/>
+            <path d="M40 10v27m0 27V37m0 0L16 23.5m24 13.5l24-13.5"/>
+          </svg>
+        </div>
+        <div class="work-overlay">
+          <p class="work-tag">3D Design</p>
+          <p class="work-name">Neon Cosmos — 3D Environment</p>
+        </div>
+      </div>
+      <div class="work-item reveal reveal-delay-1">
+        <div class="work-bg w2"></div>
+        <div class="placeholder-art">
+          <svg width="60" height="60" viewBox="0 0 60 60" fill="none" stroke="white" stroke-width="0.8">
+            <circle cx="30" cy="30" r="22"/>
+            <path d="M25 22l16 8-16 8V22z"/>
+          </svg>
+        </div>
+        <div class="work-overlay">
+          <p class="work-tag">Motion Design</p>
+          <p class="work-name">Golden Hour — Brand Film</p>
+        </div>
+      </div>
+      <div class="work-item reveal">
+        <div class="work-bg w3"></div>
+        <div class="work-overlay">
+          <p class="work-tag">2D Animation</p>
+          <p class="work-name">Aqua Drift — Character Reel</p>
+        </div>
+      </div>
+      <div class="work-item reveal reveal-delay-1">
+        <div class="work-bg w4"></div>
+        <div class="work-overlay">
+          <p class="work-tag">Graphic Design</p>
+          <p class="work-name">Velvet — Brand Identity</p>
+        </div>
+      </div>
+      <div class="work-item reveal reveal-delay-2">
+        <div class="work-bg w5"></div>
+        <div class="work-overlay">
+          <p class="work-tag">3D + Illustration</p>
+          <p class="work-name">Verdant — Nature Series</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROCESS -->
+  <section id="process">
+    <div class="process-inner">
+      <div class="section-header reveal">
+        <p class="section-label">How I Work</p>
+        <h2 class="section-title">MY PROCESS</h2>
+      </div>
+      <div class="process-steps">
+        <div class="process-step reveal">
+          <div class="step-dot"><span class="step-num">01</span></div>
+          <h3 class="step-title">Discover</h3>
+          <p class="step-desc">We begin with a deep dive into your vision, audience, and goals — turning brief into blueprint.</p>
+        </div>
+        <div class="process-step reveal reveal-delay-1">
+          <div class="step-dot"><span class="step-num">02</span></div>
+          <h3 class="step-title">Concept</h3>
+          <p class="step-desc">Sketches, mood boards, and style frames bring ideas into visual form before any pixel is committed.</p>
+        </div>
+        <div class="process-step reveal reveal-delay-2">
+          <div class="step-dot"><span class="step-num">03</span></div>
+          <h3 class="step-title">Create</h3>
+          <p class="step-desc">Iterative production with transparent feedback loops — quality craft at every stage.</p>
+        </div>
+        <div class="process-step reveal reveal-delay-3">
+          <div class="step-dot"><span class="step-num">04</span></div>
+          <h3 class="step-title">Deliver</h3>
+          <p class="step-desc">Final files, optimised for your platform, with full handoff documentation and ongoing support.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact">
+    <div class="reveal">
+      <p class="section-label">Get In Touch</p>
+      <h2 class="contact-big">LET'S BUILD<br>SOMETHING<br><span>GREAT.</span></h2>
+      <p class="contact-sub">Whether it's a brand launch, animation project, or a 3D vision you can't quite picture yet — I'd love to hear from you.</p>
+      <div class="contact-links">
+        <a href="mailto:atul@example.com" class="contact-link">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <rect x="2" y="4" width="20" height="16" rx="2"/>
+            <path d="M2 7l10 7 10-7"/>
+          </svg>
+          atul@example.com
+        </a>
+        <a href="https://behance.net" target="_blank" class="contact-link">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+            <path d="M2 12h20"/>
+          </svg>
+          behance.net/atuldinesh
+        </a>
+        <a href="https://linkedin.com" target="_blank" class="contact-link">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <rect x="2" y="2" width="20" height="20" rx="4"/>
+            <path d="M7 10v7M7 7v.01M12 17v-4a2 2 0 0 1 4 0v4M12 10v7"/>
+          </svg>
+          linkedin.com/in/atuldinesh
+        </a>
+      </div>
+    </div>
+    <div class="reveal reveal-delay-2">
+      <p class="section-label">Send a Message</p>
+      <div class="contact-form">
+        <div class="form-group">
+          <label>Your Name</label>
+          <input type="text" placeholder="Jane Smith" />
+        </div>
+        <div class="form-group">
+          <label>Email Address</label>
+          <input type="email" placeholder="jane@company.com" />
+        </div>
+        <div class="form-group">
+          <label>Project Brief</label>
+          <textarea placeholder="Tell me about your project — scope, timeline, and any references you love..."></textarea>
+        </div>
+        <button class="btn-submit" onclick="handleSubmit(this)">Send Message</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-logo">ATUL DINESH</div>
+    <p class="footer-copy">© 2025 Atul Dinesh. All rights reserved.</p>
+    <div class="footer-socials">
+      <a href="#">Behance</a>
+      <a href="#">LinkedIn</a>
+      <a href="#">Instagram</a>
+      <a href="#">Dribbble</a>
+    </div>
+  </footer>
+
+  <script>
+    // Custom cursor
+    const cursor = document.getElementById('cursor');
+    const ring = document.getElementById('cursorRing');
+    let mx = 0, my = 0, rx = 0, ry = 0;
+    document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+    function animCursor() {
+      cursor.style.left = mx + 'px';
+      cursor.style.top = my + 'px';
+      rx += (mx - rx) * 0.12;
+      ry += (my - ry) * 0.12;
+      ring.style.left = rx + 'px';
+      ring.style.top = ry + 'px';
+      requestAnimationFrame(animCursor);
+    }
+    animCursor();
+    document.querySelectorAll('a, button, .service-card, .work-item').forEach(el => {
+      el.addEventListener('mouseenter', () => {
+        cursor.style.width = '6px';
+        cursor.style.height = '6px';
+        ring.style.width = '60px';
+        ring.style.height = '60px';
+        ring.style.opacity = '0.8';
+      });
+      el.addEventListener('mouseleave', () => {
+        cursor.style.width = '12px';
+        cursor.style.height = '12px';
+        ring.style.width = '40px';
+        ring.style.height = '40px';
+        ring.style.opacity = '0.5';
+      });
+    });
+
+    // Scroll reveal
+    const reveals = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); } });
+    }, { threshold: 0.12 });
+    reveals.forEach(r => observer.observe(r));
+
+    // Contact form submit
+    function handleSubmit(btn) {
+      btn.textContent = 'Sending...';
+      btn.disabled = true;
+      setTimeout(() => {
+        btn.textContent = 'Message Sent ✓';
+        btn.style.background = 'var(--accent)';
+        btn.style.color = '#0b0b0f';
+      }, 1200);
+    }
+  </script>
+</body>
+</html>
